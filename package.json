@@ -9,13 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "ioredis": "^5.9.2",
+    "libphonenumber-js": "^1.12.35",
     "next": "16.1.5",
+    "nodemailer": "^8.0.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

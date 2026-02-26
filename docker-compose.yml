@@ -1,0 +1,22 @@
+
+services:
+  usl-redis:
+    image: redis:7-alpine
+    container_name: usl-redis
+    command: ["redis-server", "--port", "6380"]
+    ports:
+      - "6380:6380"
+    volumes:
+      - usl-redis-data:/data
+    restart: unless-stopped
+
+  usl-mailpit:
+    image: axllent/mailpit:latest
+    container_name: usl-mailpit
+    ports:
+      - "8026:8025"   # Mailpit Web UI (non-default)
+      - "1026:1025"   # SMTP (non-default)
+    restart: unless-stopped
+
+volumes:
+  usl-redis-data:

@@ -1,0 +1,126 @@
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { createHash } from 'crypto';
+import { redis } from '@/lib/redis';
+import { recordLog } from '@/lib/logger';
+import { ENV } from '@/config/env';
+
+export async function POST(req: Request) {
+  const { otp } = await req.json().catch(() => ({}));
+
+  if (!otp || typeof otp !== 'string') {
+    return NextResponse.json(
+      { error: 'OTP required' },
+      { status: 400 }
+    );
+  }
+
+  const cookieStore =await cookies();
+  const sessionId = cookieStore.get('usl_session_id')?.value;
+
+  if (!sessionId) {
+    return NextResponse.json(
+      { error: 'Missing session' },
+      { status: 401 }
+    );
+  }
+
+  const sessionKey = `usl:session:${sessionId}`;
+  const sessionRaw = await redis.get(sessionKey);
+
+  if (!sessionRaw) {
+    return NextResponse.json(
+      { error: 'Session expired' },
+      { status: 401 }
+    );
+  }
+
+  const session = JSON.parse(sessionRaw);
+
+  if (session.step !== 'otp_issued') {
+    return NextResponse.json(
+      { error: 'OTP not active' },
+      { status: 409 }
+    );
+  }
+
+  const otpKey = `usl:otp:${sessionId}`;
+  const otpRaw = await redis.get(otpKey);
+
+  if (!otpRaw) {
+    return NextResponse.json(
+      { error: 'OTP expired or abused' },
+      { status: 403 }
+    );
+  }
+
+  const otpData = JSON.parse(otpRaw);
+  const inputHash = createHash('sha256').update(otp).digest('hex');
+
+  if (inputHash !== otpData.otp_hash) {
+    const attempts = await redis.hincrby(otpKey, 'attempts', 1);
+
+    if (attempts >= 5) {
+      await redis.del(otpKey);
+      await redis.set(
+        sessionKey,
+        JSON.stringify({ ...session, step: 'otp_failed' }),
+        'KEEPTTL'
+      );
+      
+    }
+
+    return NextResponse.json(
+      { error: 'Invalid OTP' },
+      { status: 403 }
+    );
+  }
+
+  // OTP valid — consume it
+  await redis.del(otpKey)
+
+
+  recordLog({
+    code: 'USL_OTP_VERIFIED',
+    category: 'AUTH',
+    severity: 'INFO',
+  });
+
+  // Now call Auth for tokens ONLY
+  const res = await fetch(
+    `${ENV.API_BASE_URL}/auth/identity/existence`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        identifier: otpData.identifier,
+        method: otpData.method,
+      }),
+      cache: 'no-store',
+    }
+  );
+
+  if (!res.ok) {
+    return NextResponse.json(
+      { error: 'Auth service error' },
+      { status: 502 }
+    );
+  }
+  const data = await res.json();
+
+  await redis.set(
+      sessionKey,
+      JSON.stringify({ ...session, step: data.step }),
+      'KEEPTTL'
+    )
+
+  if (data.step === 'password_setup') {
+    return NextResponse.redirect(new URL('/password/setup', req.url));
+  }
+
+  if (data.step === 'password_login') {
+    return NextResponse.redirect(new URL('/password/login', req.url));
+  }
+  
+}
