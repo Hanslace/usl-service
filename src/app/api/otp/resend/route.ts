@@ -24,15 +24,7 @@ export async function POST() {
   if (!sessionRaw) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
-
   const session = JSON.parse(sessionRaw);
-
-  if (session.step !== 'otp_issued' || session.step || 'otp_failed') {
-    return NextResponse.json(
-      { error: 'OTP not issued yet' },
-      { status: 409 }
-    );
-  }
 
   const cooldownKey = `usl:otp:cooldown:${sessionId}`;
 
@@ -52,20 +44,19 @@ export async function POST() {
     );
   }
 
-  const { method, identifier } = session;
 
   const otp = randomInt(100000, 999999).toString();
   const otpHash = createHash('sha256').update(otp).digest('hex');
 
   const otpKey = `usl:otp:${sessionId}`;
 
+  const { method, identifier } = session;
+
   try {
     await redis.set(
         otpKey,
         JSON.stringify({
           otp_hash: otpHash,
-          method,
-          identifier,
           attempts: 0,
         }),
         'EX',

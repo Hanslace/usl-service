@@ -37,12 +37,6 @@ export async function POST(req: Request) {
 
   const session = JSON.parse(sessionRaw);
 
-  if (session.step !== 'otp_issued') {
-    return NextResponse.json(
-      { error: 'OTP not active' },
-      { status: 409 }
-    );
-  }
 
   const otpKey = `usl:otp:${sessionId}`;
   const otpRaw = await redis.get(otpKey);
@@ -93,9 +87,8 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        session_id: sessionId,
-        identifier: otpData.identifier,
-        method: otpData.method,
+        identifier: session.identifier,
+        method: session.method,
       }),
       cache: 'no-store',
     }
@@ -109,17 +102,11 @@ export async function POST(req: Request) {
   }
   const data = await res.json();
 
-  await redis.set(
-      sessionKey,
-      JSON.stringify({ ...session, step: data.step }),
-      'KEEPTTL'
-    )
-
-  if (data.step === 'password_setup') {
+  if (data.user_exists === false) {
     return NextResponse.redirect(new URL('/password/setup', req.url));
   }
 
-  if (data.step === 'password_login') {
+  if (data.user_exists) {
     return NextResponse.redirect(new URL('/password/login', req.url));
   }
   

@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   }
 
   const res = await fetch(
-    `${ENV.API_BASE_URL}/auth/password/setup`,
+    `${ENV.API_BASE_URL}/auth/identity/register`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,8 @@ export async function POST(req: Request) {
         password,
         method: session.method,
         identifier: session.identifier,
-        sessionId,
+        device_id: session.device_id,
+        client_id: session.client_id
       }),
       cache: 'no-store',
     }
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     return NextResponse.json(
-      { message: body?.message ?? 'Password setup failed' },
+      { message: body?.message ?? 'Profile setup failed' },
       { status: res.status }
     );
   }

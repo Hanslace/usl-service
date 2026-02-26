@@ -13,9 +13,6 @@ export async function GET(req: NextRequest) {
 
   const deviceId = sp.get('device_id')?.trim();
   const clientId = sp.get('client_id')?.trim();
-  const platform = sp.get('platform')?.trim();
-  const appVersion = sp.get('app_version')?.trim();
-  const locale = sp.get('locale')?.trim();
   const redirectUri = sp.get('redirect_uri')?.trim();
 
   /* ---------------------------
@@ -24,9 +21,6 @@ export async function GET(req: NextRequest) {
   const missing =
     !deviceId ||
     !clientId ||
-    !platform ||
-    !appVersion ||
-    !locale ||
     !redirectUri;
 
   if (missing) {
@@ -38,9 +32,6 @@ export async function GET(req: NextRequest) {
       payload: {
         has_device_id: Boolean(deviceId),
         has_client_id: Boolean(clientId),
-        has_platform: Boolean(platform),
-        has_app_version: Boolean(appVersion),
-        has_locale: Boolean(locale),
         has_redirect_uri: Boolean(redirectUri),
       },
     });
@@ -57,15 +48,7 @@ export async function GET(req: NextRequest) {
   const sessionPayload = {
     device_id: deviceId,
     client_id: clientId,
-    platform,
-    app_version: appVersion,
-    locale,
     redirect_uri: redirectUri,
-    user_agent: req.headers.get('user-agent'),
-    ip:
-      req.headers.get('x-forwarded-for') ??
-      req.headers.get('x-real-ip') ??
-      null,
   };
 
   try {
