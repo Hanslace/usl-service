@@ -37,12 +37,6 @@ export async function POST(req: Request) {
 
   const session = JSON.parse(sessionRaw);
 
-  if (session.step !== 'password_setup') {
-    return NextResponse.json(
-      { message: 'Invalid session state' },
-      { status: 409 }
-    );
-  }
 
   const res = await fetch(
     `${ENV.API_BASE_URL}/auth/identity/register`,
@@ -54,7 +48,6 @@ export async function POST(req: Request) {
         method: session.method,
         identifier: session.identifier,
         device_id: session.device_id,
-        client_id: session.client_id
       }),
       cache: 'no-store',
     }
@@ -99,11 +92,13 @@ export async function POST(req: Request) {
     code: 'USL_PASSWORD_SETUP_COMPLETED',
     category: 'AUTH',
     severity: 'INFO',
+    note: `User completed password setup using ${session.method} returned code ${code}`,
   });
 
 
-  return NextResponse.redirect(
-    new URL(`${redirectUrl}?code=${encodeURIComponent(code)}`, req.url),
-    { status: 302 }
-  );
+    // build final redirect url (string)
+  const finalUrl = `${redirectUrl.toString()}?code=${encodeURIComponent(code)}`;
+
+  // return JSON (no 302)
+  return NextResponse.json({ redirectTo: finalUrl }, { status: 200 });
 }

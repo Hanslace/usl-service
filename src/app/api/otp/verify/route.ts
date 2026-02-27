@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const cookieStore =await cookies();
+  const cookieStore = await cookies();
   const sessionId = cookieStore.get('usl_session_id')?.value;
 
   if (!sessionId) {

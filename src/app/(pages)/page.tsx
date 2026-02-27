@@ -9,6 +9,8 @@ import {
 } from "libphonenumber-js";
 import PhoneAuth from "@/components/auth/PhoneAuth";
 import EmailAuth from "@/components/auth/EmailAuth";
+import { useRouter } from "next/navigation";
+import { useCooldownStore } from '@/store/cooldown.store';
 
 type AuthMethod = "phone" | "email";
 
@@ -19,10 +21,14 @@ export default function USLPage() {
   const [error, setError] = useState<string | null>(null);
   const [method, setMethod] = useState<AuthMethod>("email");
   const [email, setEmail] = useState("");
-  const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  const { remaining, isActive, start } = useCooldownStore();
+
+
+  const router = useRouter();
 
   function validateE164(): string | null {
     const parsed = parsePhoneNumberFromString(phone, country);
+    
 
     if (!parsed || !parsed.isValid()) {
       setError("Invalid phone number");
@@ -53,37 +59,8 @@ export default function USLPage() {
     return trimmed;
   }
 
-  function canIssueOtp(): boolean {
-    const issuedAt = localStorage.getItem("otp_issued_at");
-    if (!issuedAt) return true;
 
-    const elapsed = Date.now() - Number(issuedAt);
-    return elapsed >= OTP_TTL_MS;
-  }
-
-  function submitOtpIssueForm(payload: { method: "phone" | "email"; identifier: string }) {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/api/otp/issue";
-    form.style.display = "none";
-
-    const methodInput = document.createElement("input");
-    methodInput.type = "hidden";
-    methodInput.name = "method";
-    methodInput.value = payload.method;
-
-    const identifierInput = document.createElement("input");
-    identifierInput.type = "hidden";
-    identifierInput.name = "identifier";
-    identifierInput.value = payload.identifier;
-
-    form.appendChild(methodInput);
-    form.appendChild(identifierInput);
-    document.body.appendChild(form);
-    form.submit();
-  }
-
-  function onContinue() {
+  async function onContinue() {
     if (!ack) {
       setError("Acknowledgement required");
       return;
@@ -106,14 +83,39 @@ export default function USLPage() {
       payload = { method: "email", identifier: normalizedEmail };
     }
 
-    if (!canIssueOtp()) {
+    if (isActive) {
       setError("Please wait a minute before trying again");
       return;
     }
 
-    localStorage.setItem("otp_issued_at", String(Date.now()));
-    submitOtpIssueForm(payload);
+    const res = await fetch("/api/otp/issue", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+       },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+        if (res.status === 501) {
+        setError(body?.message ?? "Feature not implemented");
+        return;
+      }
+
+      setError(body?.error ?? "Failed to initiate verification");
+      return;
+    }
+    if (res.ok) {
+      start();
+      const url = new URL(res.url);
+      router.push(`/otp`);
+      return;
+    }
+
   }
+
+
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
@@ -123,20 +125,20 @@ export default function USLPage() {
         </h1>
 
         {method === "phone" ? (
-          <PhoneAuth
-            country={country}
-            setCountry={setCountry}
-            phone={phone}
-            setPhone={setPhone}
-            error={error}
-          />
-        ) : (
-          <EmailAuth
-            email={email}
-            setEmail={setEmail}
-            error={error}
-          />
-        )}
+        <PhoneAuth
+          country={country}
+          setCountry={setCountry}
+          phone={phone}
+          setPhone={setPhone}
+          error={error}
+        />
+      ) : (
+        <EmailAuth
+          email={email}
+          setEmail={setEmail}
+          error={error}
+        />
+      )}
 
         <button
           onClick={onContinue}
@@ -149,6 +151,10 @@ export default function USLPage() {
         >
           Continue
         </button>
+        
+
+
+        
 
         {/* Divider */}
         <div className="my-6 flex items-center gap-3">
@@ -185,6 +191,7 @@ export default function USLPage() {
             Use phone instead
           </button>
         )}
+
 
         {/* Acknowledgement */}
         <div className="mt-4 flex items-start gap-2">

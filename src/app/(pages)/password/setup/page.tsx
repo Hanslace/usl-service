@@ -25,39 +25,38 @@ export default function SetupPasswordPage({
     setLoading(true);
     setError(null);
     
-    const res = await fetch("/api/password/setup", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-       },
-      body: JSON.stringify({ password }),
-      cache: "no-store",
-    });
+    try {
+      const res = await fetch("/api/password/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        cache: "no-store",
+      });
 
-    if (!res.ok) {
-        const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
 
-        const msg = data?.message ?? "Setup failed";
-        setError(msg);
+      if (!res.ok) {
+        setError(data?.message ?? "Setup failed");
         setLoading(false);
-        
-      
         return;
       }
 
-    if (res.redirected && res.url) {
-      window.location.assign(res.url);
-      return;
+      const redirectTo = data?.redirectTo;
+
+      if (typeof redirectTo === "string" && redirectTo.length > 0) {
+        // Important: top-level navigation triggers openAuthSessionAsync completion
+        window.location.href = redirectTo; // or assign()
+        return;
+      }
+
+      setError("Setup completed, but redirect failed");
+      setLoading(false);
+    } catch {
+      setError("Network error");
+      setLoading(false);
     }
 
-    const data = await res.json().catch(() => null);
-    if (data?.redirectTo && typeof data.redirectTo === "string") {
-      window.location.assign(data.redirectTo);
-      return;
-    }
 
-    setError("Setup completed, but redirect failed");
-    setLoading(false);
   }
 
   return (

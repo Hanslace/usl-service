@@ -23,7 +23,7 @@ export const ENV = {
     return parseInt(required('OTP_TTL_MS'));
   }, 
   get OTP_COOLDOWN_MS() {
-    return parseInt(required('OTP_COOLDOWN_MS'));
+    return parseInt(required('NEXT_PUBLIC_OTP_COOLDOWN_MS'));
   }, 
   get MAIL_FROM() {
     return required('MAIL_FROM');

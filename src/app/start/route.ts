@@ -12,15 +12,10 @@ export async function GET(req: NextRequest) {
   const sp = url.searchParams;
 
   const deviceId = sp.get('device_id')?.trim();
-  const clientId = sp.get('client_id')?.trim();
   const redirectUri = sp.get('redirect_uri')?.trim();
 
-  /* ---------------------------
-     Validation (strict)
-  ---------------------------- */
   const missing =
     !deviceId ||
-    !clientId ||
     !redirectUri;
 
   if (missing) {
@@ -31,7 +26,6 @@ export async function GET(req: NextRequest) {
       note: 'Required query parameters missing or empty',
       payload: {
         has_device_id: Boolean(deviceId),
-        has_client_id: Boolean(clientId),
         has_redirect_uri: Boolean(redirectUri),
       },
     });
@@ -39,15 +33,11 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Missing required parameters', { status: 400 });
   }
 
-  /* ---------------------------
-     Session creation
-  ---------------------------- */
   const sessionId = randomUUID();
   const redisKey = `usl:session:${sessionId}`;
 
   const sessionPayload = {
     device_id: deviceId,
-    client_id: clientId,
     redirect_uri: redirectUri,
   };
 
@@ -82,9 +72,7 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  /* ---------------------------
-     Cookie + redirect
-  ---------------------------- */
+
   const response = NextResponse.redirect(new URL('/', url));
 
   response.cookies.set('usl_session_id', sessionId, {

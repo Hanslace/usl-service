@@ -1,27 +1,25 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCooldownStore } from "@/store/cooldown.store";
+import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants";
 
 export default function OTPPage() {
   const OTP_LENGTH = 6;
-  const OTP_COOLDOWN_SEC = 300; // 5 minutes
-    
-  const [secondsLeft, setSecondsLeft] = useState(0);
+
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-  setSecondsLeft(OTP_COOLDOWN_SEC);
+  const { remaining, isActive, start } = useCooldownStore();
 
-  const i = setInterval(() => {
-    setSecondsLeft(v => Math.max(v - 1, 0));
-  }, 1000);
+  const router = useRouter();
 
-  return () => clearInterval(i);
-}, []);
+
 
   function formatTime(seconds: number) {
+    seconds = Math.ceil(seconds / 1000);
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
@@ -50,11 +48,16 @@ export default function OTPPage() {
       setLoading(false);
       return;
     }
+    if (res.redirected && res.url) {
+      const url = new URL(res.url);
+      router.push(`${url.pathname}${url.search}`);
+      return;
+    }
 
   }
 
   async function resendOtp() {
-    if (secondsLeft > 0) return;
+    if (isActive) return;
 
     setError(null);
 
@@ -67,7 +70,8 @@ export default function OTPPage() {
       return;
     }
 
-    setSecondsLeft(OTP_COOLDOWN_SEC);
+    start();
+    
 
   }
 
@@ -115,8 +119,8 @@ export default function OTPPage() {
         </button>
 
         <div className="mt-4 text-center text-sm text-gray-600">
-          {secondsLeft > 0 ? (
-            <>Resend available in <span className="font-medium">{formatTime(secondsLeft)}</span></>
+          {isActive ? (
+            <>Resend available in <span className="font-medium">{formatTime(remaining)}</span></>
           ) : (
             <button
               onClick={resendOtp}
