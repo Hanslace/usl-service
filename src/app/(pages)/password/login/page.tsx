@@ -10,36 +10,50 @@ export default function LoginPasswordPage() {
 
   async function onSubmit() {
     if (loading) return;
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 128) {
       setError("Invalid password");
       return;
     }
 
     setLoading(true);
     setError(null);
-    
-    const res = await fetch("/api/auth/password/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-      cache: "no-store",
-    });
 
-    if (!res.ok) {
+    try {
+      const res = await fetch("/api/password/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        cache: "no-store",
+      });
+
       const data = await res.json().catch(() => null);
-      setError(data?.message ?? "Authentication failed");
-      setLoading(false);
-      return;
-    }
 
-    window.location.href = "/app";
+      if (!res.ok) {
+        setError(data?.message ?? "Authentication failed");
+        setLoading(false);
+        return;
+      }
+
+      const redirectTo = data?.redirectTo;
+
+      if (typeof redirectTo === "string" && redirectTo.length > 0) {
+        window.location.href = redirectTo;
+        return;
+      }
+
+      setError("Login completed, but redirect failed");
+      setLoading(false);
+    } catch {
+      setError("Network error");
+      setLoading(false);
+    }
   }
 
   async function onForgot() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/auth/password/forgot", {
+    const res = await fetch("/api/password/forgot", {
       method: "POST",
       cache: "no-store",
     });
