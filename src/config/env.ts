@@ -6,6 +6,14 @@ function required(name: string): string {
   return value;
 }
 
+function optional(name: string): string {
+  const value = process.env[name];
+  if (value === undefined) {
+    return '';
+  }
+  return value;
+}
+
 export const ENV = {
   get NODE_ENV() {
     return required('NODE_ENV');
@@ -39,6 +47,15 @@ export const ENV = {
   },
   get MAIL_HOST() {
     return required('MAIL_HOST');
+  },
+  get GOOGLE_CLIENT_ID() {
+    return optional('GOOGLE_CLIENT_ID');
+  },
+  get GOOGLE_CLIENT_SECRET() {
+    return optional('GOOGLE_CLIENT_SECRET');
+  },
+  get GOOGLE_REDIRECT_URI() {
+    return optional('GOOGLE_REDIRECT_URI');
   },
 
 };

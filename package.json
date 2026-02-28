@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "arctic": "^3.7.0",
     "ioredis": "^5.9.2",
     "libphonenumber-js": "^1.12.35",
     "next": "16.1.5",

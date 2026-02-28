@@ -11,21 +11,16 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const sp = url.searchParams;
 
-  const deviceId = sp.get('device_id')?.trim();
   const redirectUri = sp.get('redirect_uri')?.trim();
 
-  const missing =
-    !deviceId ||
-    !redirectUri;
 
-  if (missing) {
+  if (!redirectUri) {
     recordLog({
       code: 'USL_START_INVALID_REQUEST',
       category: 'SECURITY',
       severity: 'WARN',
-      note: 'Required query parameters missing or empty',
+      note: 'Redirect URI missing or empty',
       payload: {
-        has_device_id: Boolean(deviceId),
         has_redirect_uri: Boolean(redirectUri),
       },
     });
@@ -37,7 +32,6 @@ export async function GET(req: NextRequest) {
   const redisKey = `usl:session:${sessionId}`;
 
   const sessionPayload = {
-    device_id: deviceId,
     redirect_uri: redirectUri,
   };
 

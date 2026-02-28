@@ -163,11 +163,13 @@ export default function USLPage() {
           <div className="h-px flex-1 bg-gray-200" />
         </div>
 
-        {/* Google */}
-        <button className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">
+        <a 
+          href="/api/oauth/google"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+        >
           <Image src="/icons/google.svg" alt="Google" width={18} height={18} />
-          Continue with Google
-        </button>
+          Sign in with Google
+        </a>
 
         {/* Email */}
         {method === "phone" ? (

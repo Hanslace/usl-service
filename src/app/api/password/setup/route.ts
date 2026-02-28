@@ -47,7 +47,6 @@ export async function POST(req: Request) {
         password,
         method: session.method,
         identifier: session.identifier,
-        device_id: session.device_id,
       }),
       cache: 'no-store',
     }
@@ -81,11 +80,7 @@ export async function POST(req: Request) {
     }
 
   // advance / finalize session
-  await redis.set(
-    sessionKey,
-    JSON.stringify({ ...session, step: 'completed' }),
-    'KEEPTTL'
-  );
+  await redis.del(sessionKey);
 
   // optional but strongly recommended
   recordLog({

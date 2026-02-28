@@ -45,7 +45,6 @@ export async function POST(req: Request) {
         password,
         method: session.method,
         identifier: session.identifier,
-        device_id: session.device_id,
       }),
       cache: 'no-store',
     }
@@ -78,11 +77,7 @@ export async function POST(req: Request) {
     );
   }
 
-  await redis.set(
-    sessionKey,
-    JSON.stringify({ ...session, step: 'completed' }),
-    'KEEPTTL'
-  );
+  await redis.del(sessionKey);
 
   recordLog({
     code: 'USL_LOGIN_COMPLETED',
