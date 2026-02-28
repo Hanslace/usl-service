@@ -3,32 +3,23 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  parsePhoneNumberFromString,
-  CountryCode
-} from "libphonenumber-js";
-import PhoneAuth from "@/components/auth/PhoneAuth";
-import EmailAuth from "@/components/auth/EmailAuth";
+import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
+import IdentifierInput, { detectMethod } from "@/components/auth/IdentifierInput";
 import { useRouter } from "next/navigation";
-import { useCooldownStore } from '@/store/cooldown.store';
-
-type AuthMethod = "phone" | "email";
+import { useCooldownStore } from "@/store/cooldown.store";
 
 export default function USLPage() {
   const [country, setCountry] = useState<CountryCode>("PK");
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [ack, setAck] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [method, setMethod] = useState<AuthMethod>("email");
-  const [email, setEmail] = useState("");
   const { remaining, isActive, start } = useCooldownStore();
 
-
   const router = useRouter();
+  const detectedMethod = detectMethod(identifier);
 
   function validateE164(): string | null {
-    const parsed = parsePhoneNumberFromString(phone, country);
-    
+    const parsed = parsePhoneNumberFromString(identifier, country);
 
     if (!parsed || !parsed.isValid()) {
       setError("Invalid phone number");
@@ -36,21 +27,18 @@ export default function USLPage() {
     }
 
     setError(null);
-    return parsed.number; // canonical E.164
+    return parsed.number;
   }
 
   function validateEmail(): string | null {
-    const trimmed = email.trim().toLowerCase();
+    const trimmed = identifier.trim().toLowerCase();
 
     if (!trimmed) {
       setError("Email is required");
       return null;
     }
 
-    const ok =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-
-    if (!ok) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
       setError("Invalid email address");
       return null;
     }
@@ -59,27 +47,26 @@ export default function USLPage() {
     return trimmed;
   }
 
-
   async function onContinue() {
     if (!ack) {
       setError("Acknowledgement required");
       return;
     }
 
-    let payload: {
-      method: "phone" | "email";
-      identifier: string;
-    };
+    if (!detectedMethod) {
+      setError("Please enter a valid email or phone number");
+      return;
+    }
 
-    if (method === "phone") {
+    let payload: { method: "phone" | "email"; identifier: string };
+
+    if (detectedMethod === "phone") {
       const e164 = validateE164();
       if (!e164) return;
-
       payload = { method: "phone", identifier: e164 };
     } else {
       const normalizedEmail = validateEmail();
       if (!normalizedEmail) return;
-
       payload = { method: "email", identifier: normalizedEmail };
     }
 
@@ -90,55 +77,37 @@ export default function USLPage() {
 
     const res = await fetch("/api/otp/issue", {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-       },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-        if (res.status === 501) {
+      if (res.status === 501) {
         setError(body?.message ?? "Feature not implemented");
         return;
       }
-
       setError(body?.error ?? "Failed to initiate verification");
       return;
     }
-    if (res.ok) {
-      start();
-      const url = new URL(res.url);
-      router.push(`/otp`);
-      return;
-    }
 
+    start();
+    router.push(`/otp`);
   }
-
-
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
-        <h1 className="text-2xl font-sans text-primary">
-          Authenticate
-        </h1>
+        <h1 className="text-2xl font-sans text-primary">Authenticate</h1>
 
-        {method === "phone" ? (
-        <PhoneAuth
+        <IdentifierInput
+          identifier={identifier}
+          setIdentifier={setIdentifier}
           country={country}
           setCountry={setCountry}
-          phone={phone}
-          setPhone={setPhone}
+          detectedMethod={detectedMethod}
           error={error}
         />
-      ) : (
-        <EmailAuth
-          email={email}
-          setEmail={setEmail}
-          error={error}
-        />
-      )}
 
         <button
           onClick={onContinue}
@@ -151,10 +120,6 @@ export default function USLPage() {
         >
           Continue
         </button>
-        
-
-
-        
 
         {/* Divider */}
         <div className="my-6 flex items-center gap-3">
@@ -163,37 +128,13 @@ export default function USLPage() {
           <div className="h-px flex-1 bg-gray-200" />
         </div>
 
-        <a 
+        <a
           href="/api/oauth/google"
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
         >
           <Image src="/icons/google.svg" alt="Google" width={18} height={18} />
           Sign in with Google
         </a>
-
-        {/* Email */}
-        {method === "phone" ? (
-          <button
-            onClick={() => {
-              setError(null);
-              setMethod("email");
-            }}
-            className="mt-3 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
-          >
-            Continue with Email
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              setError(null);
-              setMethod("phone");
-            }}
-            className="mt-3 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
-          >
-            Use phone instead
-          </button>
-        )}
-
 
         {/* Acknowledgement */}
         <div className="mt-4 flex items-start gap-2">
@@ -204,8 +145,8 @@ export default function USLPage() {
             className="mt-1"
           />
           <p className="text-xs text-gray-600">
-            I acknowledge that this system currently has no published
-            Terms of Service or Privacy Policy.
+            I acknowledge that this system currently has no published Terms of
+            Service or Privacy Policy.
           </p>
         </div>
       </div>
