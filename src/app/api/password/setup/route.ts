@@ -38,6 +38,19 @@ export async function POST(req: Request) {
   const session = JSON.parse(sessionRaw);
 
 
+  const email =
+    session.method === 'email'
+      ? session.identifier
+      : session.second_method === 'email'
+      ? session.second_identifier : undefined;
+
+  const phone =
+    session.method === 'phone'
+      ? session.identifier
+      : session.second_method === 'phone'
+      ? session.second_identifier
+      : undefined;
+
   const res = await fetch(
     `${ENV.API_BASE_URL}/auth/identity/register`,
     {
@@ -45,8 +58,8 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         password,
-        method: session.method,
-        identifier: session.identifier,
+        ...(email && { email }),
+        ...(phone && { phone }),
       }),
       cache: 'no-store',
     }

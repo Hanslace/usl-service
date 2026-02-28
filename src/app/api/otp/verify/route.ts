@@ -73,14 +73,18 @@ export async function POST(req: Request) {
   // OTP valid — consume it
   await redis.del(otpKey)
 
-
   recordLog({
     code: 'USL_OTP_VERIFIED',
     category: 'AUTH',
     severity: 'INFO',
   });
 
-  // Now call Auth for tokens ONLY
+  // Second identifier step: skip existence check, go straight to password setup
+  if (session.step === 'second_identifier') {
+    return NextResponse.redirect(new URL('/password/setup', req.url));
+  }
+
+  // First identifier: check if user exists
   const res = await fetch(
     `${ENV.API_BASE_URL}/auth/identity/existence`,
     {
@@ -103,11 +107,11 @@ export async function POST(req: Request) {
   const data = await res.json();
 
   if (data.user_exists === false) {
-    return NextResponse.redirect(new URL('/password/setup', req.url));
+    return NextResponse.redirect(new URL('/register', req.url));
   }
 
   if (data.user_exists) {
     return NextResponse.redirect(new URL('/password/login', req.url));
   }
-  
+
 }

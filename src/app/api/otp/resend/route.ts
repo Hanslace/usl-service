@@ -50,7 +50,9 @@ export async function POST() {
 
   const otpKey = `usl:otp:${sessionId}`;
 
-  const { method, identifier } = session;
+  const isSecondStep = session.step === 'second_identifier';
+  const method = isSecondStep ? session.second_method : session.method;
+  const identifier = isSecondStep ? session.second_identifier : session.identifier;
 
   try {
     await redis.set(

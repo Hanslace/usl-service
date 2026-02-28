@@ -12,7 +12,7 @@ export default function OTPPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { remaining, isActive, start } = useCooldownStore();
+  const { remaining, isActive, start , stop } = useCooldownStore();
 
   const router = useRouter();
 
@@ -50,6 +50,7 @@ export default function OTPPage() {
     }
     if (res.redirected && res.url) {
       const url = new URL(res.url);
+      stop();
       router.push(`${url.pathname}${url.search}`);
       return;
     }

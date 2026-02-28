@@ -87,5 +87,5 @@ export async function GET(request: Request) {
     await redis.del(sessionKey);
 
     // redirect to a page that will do window.location.href
-    return Response.redirect(new URL(`/auth/complete?redirectTo=${encodeURIComponent(finalUrl)}`, request.url));
+    return Response.redirect(new URL(`/complete?redirectTo=${encodeURIComponent(finalUrl)}`, request.url));
 }
