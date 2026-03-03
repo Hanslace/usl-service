@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function LoginPasswordPage() {
-  const [password, setPassword] = useState("");
+export default function ResetPasswordPage() {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -12,57 +13,30 @@ export default function LoginPasswordPage() {
 
   async function onSubmit() {
     if (loading) return;
+
     if (password.length < 8 || password.length > 128) {
-      setError("Invalid password");
+      setError('Password must be between 8 and 128 characters');
+      return;
+    }
+
+    if (password !== confirm) {
+      setError('Passwords do not match');
       return;
     }
 
     setLoading(true);
     setError(null);
 
-    try {
-      const res = await fetch("/api/password/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-        cache: "no-store",
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.message ?? "Authentication failed");
-        setLoading(false);
-        return;
-      }
-
-      const redirectTo = data?.redirectTo;
-
-      if (typeof redirectTo === "string" && redirectTo.length > 0) {
-        window.location.href = redirectTo;
-        return;
-      }
-
-      setError("Login completed, but redirect failed");
-      setLoading(false);
-    } catch {
-      setError("Network error");
-      setLoading(false);
-    }
-  }
-
-  async function onForgot() {
-    setLoading(true);
-    setError(null);
-
-    const res = await fetch("/api/password/forgot", {
-      method: "POST",
-      cache: "no-store",
+    const res = await fetch('/api/password/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+      cache: 'no-store',
     });
 
     if (!res.ok) {
       const data = await res.json().catch(() => null);
-      setError(data?.message ?? "Request failed");
+      setError(data?.message ?? 'Reset failed');
       setLoading(false);
       return;
     }
@@ -72,27 +46,32 @@ export default function LoginPasswordPage() {
       router.push(`${url.pathname}${url.search}`);
       return;
     }
-
-    setError("Request failed");
-    setLoading(false);
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 shadow-xl">
         <h1 className="mb-2 text-2xl font-semibold text-neutral-100">
-          Welcome back
+          Set new password
         </h1>
 
         <p className="mb-6 text-sm text-neutral-400">
-          Enter your password to continue.
+          Choose a new password for your account.
         </p>
 
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="New password"
+          className="mb-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder-neutral-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+        />
+
+        <input
+          type="password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="Confirm new password"
           className="mb-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder-neutral-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
         />
 
@@ -107,16 +86,7 @@ export default function LoginPasswordPage() {
           disabled={loading}
           className="mt-2 w-full rounded-lg bg-blue-600 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-
-        <button
-          type="button"
-          onClick={onForgot}
-          disabled={loading}
-          className="mt-4 w-full text-sm text-neutral-400 transition hover:text-neutral-200"
-        >
-          Forgot password ?
+          {loading ? 'Updating…' : 'Set new password'}
         </button>
       </div>
     </div>
