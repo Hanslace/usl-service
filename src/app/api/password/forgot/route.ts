@@ -74,7 +74,7 @@ export async function POST(req: Request) {
   }
 
   // Fetch alternate identifier from backend
-  const altRes = await fetch(`${ENV.API_BASE_URL}/auth/identity/alternate`, {
+  const altRes = await fetch(`${session.backend_url}/auth/identity/alternate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ method: session.method, identifier: session.identifier }),

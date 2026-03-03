@@ -18,9 +18,6 @@ export const ENV = {
   get NODE_ENV() {
     return required('NODE_ENV');
   },
-  get API_BASE_URL() {
-    return required('API_BASE_URL');
-  },
   get SERVICE_NAME() {
     return required('SERVICE_NAME');
   },

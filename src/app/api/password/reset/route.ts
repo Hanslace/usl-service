@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Invalid session state' }, { status: 403 });
   }
 
-  const res = await fetch(`${ENV.API_BASE_URL}/auth/identity/reset-password`, {
+  const res = await fetch(`${session.backend_url}/auth/identity/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

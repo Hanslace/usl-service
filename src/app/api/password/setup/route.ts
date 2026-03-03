@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       : undefined;
 
   const res = await fetch(
-    `${ENV.API_BASE_URL}/auth/identity/register`,
+    `${session.backend_url}/auth/identity/register`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

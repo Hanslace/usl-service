@@ -61,7 +61,7 @@ export async function GET(request: Request) {
   }
 
   // ---- exchange with NestJS for your own auth code ----
-  const nestRes = await fetch(`${ENV.API_BASE_URL}/auth/identity/oauth-register`, {
+  const nestRes = await fetch(`${session.backend_url}/auth/identity/oauth-register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

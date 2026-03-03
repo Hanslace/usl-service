@@ -91,7 +91,7 @@ export async function POST(req: Request) {
 
   // First identifier: check if user exists
   const res = await fetch(
-    `${ENV.API_BASE_URL}/auth/identity/existence`,
+    `${session.API_BASE_URL}/auth/identity/existence`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
