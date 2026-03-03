@@ -30,9 +30,13 @@ export default function RegisterPage() {
           setFirstMethod(d.method);
         } else {
           setError("Session error — please start over");
+          setTimeout(() => goBack(), 2000);
         }
       })
-      .catch(() => setError("Session error — please start over"));
+      .catch(() => {
+        setError("Session error — please start over");
+        setTimeout(() => goBack(), 2000);
+      });
   }, []);
 
   const detectedMethod = detectMethod(identifier);

@@ -17,13 +17,6 @@ export default function OTPPage() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    fetch('/api/session/step')
-      .then((r) => r.json())
-      .then((d) => setStep(d.step ?? null))
-      .catch(() => {});
-  }, []);
-
   async function goBack() {
     const res = await fetch('/api/back', { method: 'POST' });
     if (!res.ok) return;
@@ -98,7 +91,7 @@ export default function OTPPage() {
           onClick={goBack}
           className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
         >
-          ← {step === 'otp_second' ? 'Back to add contact' : 'Back'}
+          ← Back
         </button>
 
         <h1 className="text-xl font-semibold text-gray-900">
