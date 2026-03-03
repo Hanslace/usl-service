@@ -1,21 +1,28 @@
-// app/(pages)/auth/complete/page.tsx
 'use client';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function AuthCompletePage() {
+function AuthComplete() {
   const params = useSearchParams();
 
   useEffect(() => {
     const redirectTo = params.get('redirectTo');
     if (typeof redirectTo === 'string' && redirectTo.length > 0) {
-      window.location.href = redirectTo; // triggers openAuthSessionAsync completion
+      window.location.href = redirectTo;
     }
-  }, []);
+  }, [params]);
 
   return (
     <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <span>Completing sign in...</span>
     </div>
+  );
+}
+
+export default function AuthCompletePage() {
+  return (
+    <Suspense fallback={<span>Loading...</span>}>
+      <AuthComplete />
+    </Suspense>
   );
 }
