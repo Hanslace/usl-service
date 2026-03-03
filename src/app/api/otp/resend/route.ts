@@ -26,7 +26,11 @@ export async function POST() {
   }
   const session = JSON.parse(sessionRaw);
 
-  const cooldownKey = `usl:otp:cooldown:${sessionId}`;
+  const isSecondStep = session.step === 'otp_second';
+  const method = isSecondStep ? session.second_method : session.method;
+  const identifier = isSecondStep ? session.second_identifier : session.identifier;
+
+  const cooldownKey = `usl:otp:cooldown:${sessionId}:${method}:${identifier}`;
 
   // atomic cooldown enforcement
   const cooldownSet = await redis.set(
@@ -50,9 +54,7 @@ export async function POST() {
 
   const otpKey = `usl:otp:${sessionId}`;
 
-  const isSecondStep = session.step === 'second_identifier';
-  const method = isSecondStep ? session.second_method : session.method;
-  const identifier = isSecondStep ? session.second_identifier : session.identifier;
+  
 
   try {
     await redis.set(

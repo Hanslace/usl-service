@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 
   const normalized = method === 'email' ? identifier.trim().toLowerCase() : identifier.trim();
 
-  const cooldownKey = `usl:otp:cooldown:${sessionId}`;
+  const cooldownKey = `usl:otp:cooldown:${sessionId}:${method}:${normalized}`;
   const cooldownSet = await redis.set(cooldownKey, '1', 'EX', COOLDOWN_TTL, 'NX');
 
   if (!cooldownSet) {
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
           ...session,
           second_method: method,
           second_identifier: normalized,
-          step: 'second_identifier',
+          step: 'otp_second',
         }),
         'KEEPTTL'
       )

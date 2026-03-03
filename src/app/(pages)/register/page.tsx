@@ -15,6 +15,13 @@ export default function RegisterPage() {
   const { start } = useCooldownStore();
   const router = useRouter();
 
+  async function goBack() {
+    const res = await fetch('/api/back', { method: 'POST' });
+    if (!res.ok) return;
+    const { redirectTo } = await res.json();
+    if (redirectTo) router.push(redirectTo);
+  }
+
   useEffect(() => {
     fetch("/api/otp/method")
       .then((r) => r.json())
@@ -87,6 +94,13 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
+        <button
+          onClick={goBack}
+          className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
+        >
+          ← Back
+        </button>
+
         <h1 className="text-2xl font-sans text-primary">{hint}</h1>
         <p className="mt-1 text-sm text-gray-600">
           We'll verify it with a one-time code.

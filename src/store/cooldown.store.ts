@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 const COOLDOWN_MS = Number(
-  process.env.NEXT_PUBLIC_OTP_COOLDOWN_MS ?? 30000
+  process.env.NEXT_PUBLIC_OTP_COOLDOWN_MS ?? 120000
 );
 
 type CooldownState = {

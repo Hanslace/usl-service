@@ -69,9 +69,13 @@ export async function POST(req: Request) {
       { status: 403 }
     );
   }
+  const isSecondStep = session.step === 'otp_second';
+  const method = isSecondStep ? session.method_second : session.method;
+  const identifier = isSecondStep ? session.identifier_second : session.identifier;
 
   // OTP valid — consume it
   await redis.del(otpKey)
+  await redis.del(`usl:otp:cooldown:${sessionId}:${method}:${identifier}`);
 
   recordLog({
     code: 'USL_OTP_VERIFIED',
@@ -80,7 +84,8 @@ export async function POST(req: Request) {
   });
 
   // Second identifier step: skip existence check, go straight to password setup
-  if (session.step === 'second_identifier') {
+  if (session.step === 'otp_second') {
+    await redis.set(sessionKey, JSON.stringify({ ...session, step: 'password_setup' }), 'KEEPTTL');
     return NextResponse.redirect(new URL('/password/setup', req.url));
   }
 
@@ -107,10 +112,12 @@ export async function POST(req: Request) {
   const data = await res.json();
 
   if (data.user_exists === false) {
+    await redis.set(sessionKey, JSON.stringify({ ...session, step: 'register' }), 'KEEPTTL');
     return NextResponse.redirect(new URL('/register', req.url));
   }
 
   if (data.user_exists) {
+    await redis.set(sessionKey, JSON.stringify({ ...session, step: 'password_login' }), 'KEEPTTL');
     return NextResponse.redirect(new URL('/password/login', req.url));
   }
 

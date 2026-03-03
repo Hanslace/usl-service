@@ -14,6 +14,13 @@ export default function ForgotPasswordPage() {
 
   const router = useRouter();
 
+  async function goBack() {
+    const res = await fetch('/api/back', { method: 'POST' });
+    if (!res.ok) return;
+    const { redirectTo } = await res.json();
+    if (redirectTo) router.push(redirectTo);
+  }
+
   useEffect(() => {
     fetch('/api/password/forgot')
       .then((r) => r.json())
@@ -59,6 +66,13 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 shadow-xl">
+        <button
+          onClick={goBack}
+          className="mb-4 flex items-center gap-1 text-sm text-neutral-400 hover:text-neutral-200 transition"
+        >
+          ← Back
+        </button>
+
         <h1 className="mb-2 text-2xl font-semibold text-neutral-100">
           Check your {method === 'phone' ? 'phone' : 'email'}
         </h1>

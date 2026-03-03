@@ -11,10 +11,25 @@ export default function OTPPage() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<string | null>(null);
 
   const { remaining, isActive, start , stop } = useCooldownStore();
 
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/session/step')
+      .then((r) => r.json())
+      .then((d) => setStep(d.step ?? null))
+      .catch(() => {});
+  }, []);
+
+  async function goBack() {
+    const res = await fetch('/api/back', { method: 'POST' });
+    if (!res.ok) return;
+    const { redirectTo } = await res.json();
+    if (redirectTo) router.push(redirectTo);
+  }
 
 
 
@@ -79,6 +94,13 @@ export default function OTPPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
+        <button
+          onClick={goBack}
+          className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
+        >
+          ← {step === 'otp_second' ? 'Back to add contact' : 'Back'}
+        </button>
+
         <h1 className="text-xl font-semibold text-gray-900">
           Enter verification code
         </h1>

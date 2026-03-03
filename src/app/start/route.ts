@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
 
   const sessionPayload = {
     redirect_uri: redirectUri,
+    step: 'identifier_entry',
   };
 
   try {

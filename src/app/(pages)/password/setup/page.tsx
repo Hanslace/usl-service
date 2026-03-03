@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SetupPasswordPage({
 }: {
@@ -9,6 +10,14 @@ export default function SetupPasswordPage({
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function goBack() {
+    const res = await fetch('/api/back', { method: 'POST' });
+    if (!res.ok) return;
+    const { redirectTo } = await res.json();
+    if (redirectTo) router.push(redirectTo);
+  }
 
   async function onSubmit() {
     if (loading) return;
@@ -62,6 +71,13 @@ export default function SetupPasswordPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
       <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg">
+        <button
+          onClick={goBack}
+          className="mb-4 flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-800 transition"
+        >
+          ← Back
+        </button>
+
         <h1 className="mb-2 text-2xl font-semibold text-neutral-900">
           Create password
         </h1>
