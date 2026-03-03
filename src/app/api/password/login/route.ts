@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const session = JSON.parse(sessionRaw);
 
   const res = await fetch(
-    `${ENV.API_BASE_URL}/auth/identity/login`,
+    `${session.backend_url}/auth/identity/login`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
