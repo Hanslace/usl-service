@@ -12,9 +12,11 @@ export async function GET(req: NextRequest) {
   const sp = url.searchParams;
 
   const redirectUri = sp.get('redirect_uri')?.trim();
+  const backendUrl = sp.get("backend_url")?.trim();
 
+  
 
-  if (!redirectUri) {
+  if (!redirectUri || !backendUrl) {
     recordLog({
       code: 'USL_START_INVALID_REQUEST',
       category: 'SECURITY',
@@ -22,10 +24,26 @@ export async function GET(req: NextRequest) {
       note: 'Redirect URI missing or empty',
       payload: {
         has_redirect_uri: Boolean(redirectUri),
+        has_backend_url: Boolean(backendUrl),
       },
     });
 
+    
+
     return new NextResponse('Missing required parameters', { status: 400 });
+  }
+
+  const isAllowed = await redis.sismember("usl:allowed_backends", backendUrl);
+
+  if (!isAllowed) {
+    recordLog({
+      code: 'USL_START_INVALID_BACKEND',
+      category: 'SECURITY',
+      severity: 'WARN',
+      note: 'Backend URL not in allowlist',
+      payload: { backend_url: backendUrl },
+    });
+    return new NextResponse('Invalid backend URL', { status: 403 });
   }
 
   const sessionId = randomUUID();
@@ -33,6 +51,7 @@ export async function GET(req: NextRequest) {
 
   const sessionPayload = {
     redirect_uri: redirectUri,
+    backend_url: backendUrl,
     step: 'identifier_entry',
   };
 
