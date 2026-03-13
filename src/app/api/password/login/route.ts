@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     note: `User completed login using ${session.method} returned code ${code}`,
   });
 
-  const finalUrl = `${redirectUrl.toString()}?code=${encodeURIComponent(code)}`;
+  const finalUrl = `${redirectUrl.toString()}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(session.state)}`;
 
   return NextResponse.json({ redirectTo: finalUrl }, { status: 200 });
 }

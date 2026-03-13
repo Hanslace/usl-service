@@ -26,10 +26,10 @@ export async function GET(request: Request) {
   }
 
   const session = JSON.parse(sessionRaw);
-  const { google_oauth_state, google_code_verifier, redirect_uri } = session;
+  const { google_oauth_state, google_code_verifier, redirect_uri, state: usl_state } = session;
 
   // ---- validate state + params ----
-  if (!incomingCode || !incomingState || !google_code_verifier || !redirect_uri) {
+  if (!incomingCode || !incomingState || !google_code_verifier || !redirect_uri || !usl_state) {
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
   }
 
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: 'No auth code returned' }, { status: 502 });
   }
 
-  const finalUrl = `${redirect_uri}?code=${encodeURIComponent(code)}`;
+  const finalUrl = `${redirect_uri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(usl_state)}`;
 
     // clean up
     await redis.del(sessionKey);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { redis } from '@/lib/redis';
 import { recordLog } from '@/lib/logger';
+import { stat } from 'fs';
 
 export const runtime = 'nodejs';
 
@@ -13,16 +14,18 @@ export async function GET(req: NextRequest) {
 
   const redirectUri = sp.get('redirect_uri')?.trim();
   const client_id = sp.get("client_id")?.trim();
+  const state = sp.get("state")?.trim();
 
-  if (!redirectUri || !client_id) {
+  if (!redirectUri || !client_id || !state) {
     recordLog({
       code: 'USL_START_INVALID_REQUEST',
       category: 'SECURITY',
       severity: 'WARN',
-      note: 'Redirect URI missing or empty',
+      note: 'Parameter missing or empty',
       payload: {
         has_redirect_uri: Boolean(redirectUri),
         has_client_id: Boolean(client_id),
+        has_state: Boolean(state),
       },
     });
 
@@ -49,6 +52,7 @@ export async function GET(req: NextRequest) {
   const sessionPayload = {
     redirect_uri: redirectUri,
     backend_url: backendUrl,
+    state: state,
     step: 'identifier_entry',
   };
 

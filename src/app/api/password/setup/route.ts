@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 
 
     // build final redirect url (string)
-  const finalUrl = `${redirectUrl.toString()}?code=${encodeURIComponent(code)}`;
+  const finalUrl = `${redirectUrl.toString()}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(session.state)}`;
 
   // return JSON (no 302)
   return NextResponse.json({ redirectTo: finalUrl }, { status: 200 });
