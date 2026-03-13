@@ -16,6 +16,6 @@ export function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!start|session-expired|api|_next|static).*)",
+    "/((?!authorize|session-expired|api|_next|static).*)",
   ],
 };
