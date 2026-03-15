@@ -18,8 +18,8 @@ export const ENV = {
   get NODE_ENV() {
     return required('NODE_ENV');
   },
-  get SERVICE_NAME() {
-    return required('SERVICE_NAME');
+  get SERVICE_ID() {
+    return required('SERVICE_ID');
   },
   get REDIS_URL() {
     return required('REDIS_URL');

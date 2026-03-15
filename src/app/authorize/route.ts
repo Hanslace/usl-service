@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { redis } from '@/lib/redis';
 import { recordLog } from '@/lib/logger';
-import { stat } from 'fs';
 
 export const runtime = 'nodejs';
 

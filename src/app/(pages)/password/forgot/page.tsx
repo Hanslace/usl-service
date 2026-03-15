@@ -64,22 +64,30 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-12">
+      <div className="w-full max-w-md border border-black p-8">
+
+        {/* header badge */}
+        <div className="mb-8 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-black" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">
+            Password reset
+          </span>
+        </div>
+
         <button
           onClick={goBack}
-          className="mb-4 flex items-center gap-1 text-sm text-neutral-400 hover:text-neutral-200 transition"
+          className="mb-6 flex items-center gap-1.5 text-sm text-secondary2 transition-colors hover:text-black"
         >
           ← Back
         </button>
 
-        <h1 className="mb-2 text-2xl font-semibold text-neutral-100">
+        <h1 className="font-heading text-2xl font-bold leading-tight">
           Check your {method === 'phone' ? 'phone' : 'email'}
         </h1>
-
-        <p className="mb-6 text-sm text-neutral-400">
+        <p className="mt-2 text-sm leading-relaxed text-secondary1">
           We sent a 6-digit code to{' '}
-          <span className="font-medium text-neutral-200">
+          <span className="font-semibold text-black">
             {maskedIdentifier ?? '…'}
           </span>
           . Enter it below to continue.
@@ -96,23 +104,21 @@ export default function ForgotPasswordPage() {
             setError(null);
           }}
           placeholder="000000"
-          className="mb-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-4 py-3 text-center text-xl tracking-widest text-neutral-100 placeholder-neutral-600 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+          className="mt-6 h-14 w-full border border-black bg-white px-3 text-center text-xl tracking-[0.5em] placeholder-secondary2 focus:outline-none focus:ring-1 focus:ring-black"
         />
 
         {error && (
-          <div className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
-            {error}
-          </div>
+          <p className="mt-2 text-xs text-red-600">{error}</p>
         )}
 
         <button
           onClick={onSubmit}
           disabled={loading}
-          className="mt-2 w-full rounded-lg bg-blue-600 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? 'Verifying…' : 'Verify code'}
         </button>
       </div>
-    </div>
+    </main>
   );
 }

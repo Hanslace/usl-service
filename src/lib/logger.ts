@@ -33,7 +33,7 @@ export function recordLog(log: Log): void {
 
   const enriched = {
     ...log,
-    service: ENV.SERVICE_NAME,
+    service: ENV.SERVICE_ID,
     timestamp: new Date().toISOString(),
   };
 

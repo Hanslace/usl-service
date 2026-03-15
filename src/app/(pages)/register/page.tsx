@@ -96,17 +96,26 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-12">
+      <div className="w-full max-w-md border border-black p-8">
+
+        {/* header badge */}
+        <div className="mb-8 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-black" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">
+            Account setup
+          </span>
+        </div>
+
         <button
           onClick={goBack}
-          className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
+          className="mb-6 flex items-center gap-1.5 text-sm text-secondary2 transition-colors hover:text-black"
         >
           ← Back
         </button>
 
-        <h1 className="text-2xl font-sans text-primary">{hint}</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="font-heading text-2xl font-bold leading-tight">{hint}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-secondary1">
           We'll verify it with a one-time code.
         </p>
 
@@ -122,11 +131,7 @@ export default function RegisterPage() {
         <button
           onClick={onContinue}
           disabled={!firstMethod}
-          className="
-            mt-6 h-11 w-full rounded-lg
-            bg-black text-sm font-medium text-white
-            transition disabled:cursor-not-allowed disabled:opacity-40
-          "
+          className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Continue
         </button>

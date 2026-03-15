@@ -35,14 +35,13 @@ export default function IdentifierInput({
   error,
 }: Props) {
   return (
-    <div className="mt-8 space-y-2">
-
+    <div className="mt-6 space-y-2">
       <div className="flex gap-2">
         {detectedMethod === "phone" && (
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value as CountryCode)}
-            className="h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm"
+            className="h-11 border border-black bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
@@ -55,10 +54,10 @@ export default function IdentifierInput({
         <input
           type="text"
           inputMode={detectedMethod === "phone" ? "numeric" : "email"}
-          placeholder="Enter your email or phone number"
+          placeholder="Email or phone number"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          className="h-11 flex-1 rounded-lg border border-gray-300 px-3 text-sm"
+          className="h-11 flex-1 border border-black bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
           autoComplete="username"
         />
       </div>

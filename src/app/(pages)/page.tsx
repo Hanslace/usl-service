@@ -96,9 +96,23 @@ export default function USLPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-sans text-primary">Authenticate</h1>
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-12">
+      <div className="w-full max-w-md border border-black p-8">
+
+        {/* header badge */}
+        <div className="mb-8 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-black" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">
+            Secure authentication
+          </span>
+        </div>
+
+        <h1 className="font-heading text-2xl font-bold leading-tight">
+          Sign in or create account
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-secondary1">
+          Enter your email or phone number to continue.
+        </p>
 
         <IdentifierInput
           identifier={identifier}
@@ -112,39 +126,35 @@ export default function USLPage() {
         <button
           onClick={onContinue}
           disabled={!ack}
-          className="
-            mt-6 h-11 w-full rounded-lg
-            bg-black text-sm font-medium text-white
-            transition disabled:cursor-not-allowed disabled:opacity-40
-          "
+          className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Continue
         </button>
 
         {/* Divider */}
         <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-xs text-gray-500">OR</span>
-          <div className="h-px flex-1 bg-gray-200" />
+          <div className="h-px flex-1 bg-black/15" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">or</span>
+          <div className="h-px flex-1 bg-black/15" />
         </div>
 
         <a
           href="/api/oauth/google"
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          className="flex h-11 w-full items-center justify-center gap-3 border border-black px-4 text-sm font-medium transition-colors hover:bg-black hover:text-white"
         >
           <Image src="/icons/google.svg" alt="Google" width={18} height={18} />
-          Sign in with Google
+          Continue with Google
         </a>
 
         {/* Acknowledgement */}
-        <div className="mt-4 flex items-start gap-2">
+        <div className="mt-6 flex items-start gap-2.5">
           <input
             type="checkbox"
             checked={ack}
             onChange={(e) => setAck(e.target.checked)}
-            className="mt-1"
+            className="mt-0.5 accent-black"
           />
-          <p className="text-xs text-gray-600">
+          <p className="text-xs leading-relaxed text-secondary2">
             I acknowledge that this system currently has no published Terms of
             Service or Privacy Policy.
           </p>

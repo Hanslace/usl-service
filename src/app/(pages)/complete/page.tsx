@@ -13,15 +13,24 @@ function AuthComplete() {
   }, [params]);
 
   return (
-    <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <span>Completing sign in...</span>
-    </div>
+    <main className="flex min-h-screen items-center justify-center bg-white px-4">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <span className="h-2 w-2 animate-pulse rounded-full bg-black" />
+        <p className="text-sm text-secondary1">Completing sign in…</p>
+      </div>
+    </main>
   );
 }
 
 export default function AuthCompletePage() {
   return (
-    <Suspense fallback={<span>Loading...</span>}>
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-white px-4">
+          <p className="text-sm text-secondary1">Loading…</p>
+        </main>
+      }
+    >
       <AuthComplete />
     </Suspense>
   );

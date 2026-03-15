@@ -24,15 +24,12 @@ export default function OTPPage() {
     if (redirectTo) router.push(redirectTo);
   }
 
-
-
   function formatTime(seconds: number) {
     seconds = Math.ceil(seconds / 1000);
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   }
-
 
   async function verifyOtp() {
     if (loading) return;
@@ -62,7 +59,6 @@ export default function OTPPage() {
       router.push(`${url.pathname}${url.search}`);
       return;
     }
-
   }
 
   async function resendOtp() {
@@ -80,25 +76,31 @@ export default function OTPPage() {
     }
 
     start();
-    
-
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-12">
+      <div className="w-full max-w-md border border-black p-8">
+
+        {/* header badge */}
+        <div className="mb-8 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-black" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">
+            Verification
+          </span>
+        </div>
+
         <button
           onClick={goBack}
-          className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
+          className="mb-6 flex items-center gap-1.5 text-sm text-secondary2 transition-colors hover:text-black"
         >
           ← Back
         </button>
 
-        <h1 className="text-xl font-semibold text-gray-900">
+        <h1 className="font-heading text-2xl font-bold leading-tight">
           Enter verification code
         </h1>
-
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-2 text-sm leading-relaxed text-secondary1">
           We sent a 6-digit code to your contact method.
         </p>
 
@@ -112,35 +114,31 @@ export default function OTPPage() {
             setOtp(e.target.value.replace(/\D/g, ""));
             setError(null);
           }}
-          className="
-            mt-4 h-12 w-full rounded-lg border
-            px-3 text-center text-lg tracking-widest
-            focus:outline-none focus:ring-2 focus:ring-black
-          "
+          className="mt-6 h-14 w-full border border-black bg-white px-3 text-center text-xl tracking-[0.5em] focus:outline-none focus:ring-1 focus:ring-black"
         />
 
         {error && (
-          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <p className="mt-2 text-xs text-red-600">{error}</p>
         )}
 
         <button
           onClick={verifyOtp}
           disabled={loading}
-          className="
-            mt-5 h-11 w-full rounded-lg
-            bg-black text-sm font-medium text-white
-          "
+          className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Verify
+          {loading ? "Verifying…" : "Verify"}
         </button>
 
-        <div className="mt-4 text-center text-sm text-gray-600">
+        <div className="mt-5 text-center text-sm text-secondary2">
           {isActive ? (
-            <>Resend available in <span className="font-medium">{formatTime(remaining)}</span></>
+            <>
+              Resend in{" "}
+              <span className="font-semibold text-black">{formatTime(remaining)}</span>
+            </>
           ) : (
             <button
               onClick={resendOtp}
-              className="font-medium text-black underline"
+              className="font-semibold text-black underline underline-offset-2 hover:no-underline transition-all"
             >
               Resend code
             </button>
