@@ -142,7 +142,7 @@ export default function USLPage() {
           href="/api/oauth/google"
           className="flex h-11 w-full items-center justify-center gap-3 border border-black px-4 text-sm font-medium transition-colors hover:bg-black hover:text-white"
         >
-          <Image src="/icons/google.svg" alt="Google" width={18} height={18} />
+          <Image src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google" width={18} height={18} />
           Continue with Google
         </a>
 
