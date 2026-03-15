@@ -136,5 +136,5 @@ export async function POST(req: Request) {
     payload: { method: alt_method },
   });
 
-  return NextResponse.redirect(new URL('/password/forgot', req.url));
+  return NextResponse.redirect(new URL('/password/forgot', req.url), 303);
 }

@@ -66,5 +66,5 @@ export async function POST(req: Request) {
     severity: 'INFO',
   });
 
-  return NextResponse.redirect(new URL('/password/reset', req.url));
+  return NextResponse.redirect(new URL('/password/reset', req.url), 303);
 }

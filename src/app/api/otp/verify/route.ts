@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   const inputHash = createHash('sha256').update(otp).digest('hex');
 
   if (inputHash !== otpData.otp_hash) {
-    const attempts = await redis.hincrby(otpKey, 'attempts', 1);
+    const attempts = (otpData.attempts ?? 0) + 1;
 
     if (attempts >= 5) {
       await redis.del(otpKey);
@@ -61,7 +61,8 @@ export async function POST(req: Request) {
         JSON.stringify({ ...session, step: 'otp_failed' }),
         'KEEPTTL'
       );
-      
+    } else {
+      await redis.set(otpKey, JSON.stringify({ ...otpData, attempts }), 'KEEPTTL');
     }
 
     return NextResponse.json(
@@ -86,7 +87,7 @@ export async function POST(req: Request) {
   // Second identifier step: skip existence check, go straight to password setup
   if (session.step === 'otp_second') {
     await redis.set(sessionKey, JSON.stringify({ ...session, step: 'password_setup' }), 'KEEPTTL');
-    return NextResponse.redirect(new URL('/password/setup', req.url));
+    return NextResponse.redirect(new URL('/password/setup', req.url), 303);
   }
 
   // First identifier: check if user exists
@@ -113,12 +114,12 @@ export async function POST(req: Request) {
 
   if (data.user_exists === false) {
     await redis.set(sessionKey, JSON.stringify({ ...session, step: 'register' }), 'KEEPTTL');
-    return NextResponse.redirect(new URL('/register', req.url));
+    return NextResponse.redirect(new URL('/register', req.url), 303);
   }
 
   if (data.user_exists) {
     await redis.set(sessionKey, JSON.stringify({ ...session, step: 'password_login' }), 'KEEPTTL');
-    return NextResponse.redirect(new URL('/password/login', req.url));
+    return NextResponse.redirect(new URL('/password/login', req.url), 303);
   }
 
 }

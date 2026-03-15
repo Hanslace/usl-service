@@ -62,5 +62,5 @@ export async function POST(req: Request) {
     note: `Password reset completed for ${session.method} user`,
   });
 
-  return NextResponse.redirect(new URL('/password/login', req.url));
+  return NextResponse.redirect(new URL('/password/login', req.url), 303);
 }
