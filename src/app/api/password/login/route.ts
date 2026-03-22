@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 import { redis } from '@/lib/redis';
 import { recordLog } from '@/lib/logger';
 

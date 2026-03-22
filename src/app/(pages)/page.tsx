@@ -7,6 +7,7 @@ import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
 import IdentifierInput, { detectMethod } from "@/components/auth/IdentifierInput";
 import { useRouter } from "next/navigation";
 import { useCooldownStore } from "@/store/cooldown.store";
+import { ENV } from "@/config";
 
 export default function USLPage() {
   const [country, setCountry] = useState<CountryCode>("PK");
@@ -111,32 +112,38 @@ export default function USLPage() {
           Sign in or create account
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-secondary1">
-          Enter your email or phone number to continue.
+          {ENV.OAUTH_ONLY
+            ? "Continue with your social account."
+            : "Enter your email or phone number to continue."}
         </p>
 
-        <IdentifierInput
-          identifier={identifier}
-          setIdentifier={setIdentifier}
-          country={country}
-          setCountry={setCountry}
-          detectedMethod={detectedMethod}
-          error={error}
-        />
+        {!ENV.OAUTH_ONLY && (
+          <>
+            <IdentifierInput
+              identifier={identifier}
+              setIdentifier={setIdentifier}
+              country={country}
+              setCountry={setCountry}
+              detectedMethod={detectedMethod}
+              error={error}
+            />
 
-        <button
-          onClick={onContinue}
-          disabled={!ack}
-          className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Continue
-        </button>
+            <button
+              onClick={onContinue}
+              disabled={!ack}
+              className="mt-4 h-11 w-full bg-black text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Continue
+            </button>
 
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-black/15" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">or</span>
-          <div className="h-px flex-1 bg-black/15" />
-        </div>
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-black/15" />
+              <span className="text-xs font-semibold uppercase tracking-widest text-secondary2">or</span>
+              <div className="h-px flex-1 bg-black/15" />
+            </div>
+          </>
+        )}
 
         <a
           href="/api/oauth/google"

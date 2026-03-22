@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { randomInt, createHash } from 'crypto';
 import { redis } from '@/lib/redis';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 import { recordLog } from '@/lib/logger';
 import { sendEmail } from '@/lib/mailer';
 import { sendSms } from '@/lib/sms';

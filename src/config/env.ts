@@ -14,22 +14,15 @@ function optional(name: string): string {
   return value;
 }
 
-export const ENV = {
+export const SECRET_ENV = {
   get NODE_ENV() {
     return required('NODE_ENV');
   },
-  get SERVICE_ID() {
-    return required('SERVICE_ID');
-  },
+
   get REDIS_URL() {
     return required('REDIS_URL');
   }, // default to 5 minutes
-  get OTP_TTL_MS() {
-    return parseInt(required('OTP_TTL_MS'));
-  }, 
-  get OTP_COOLDOWN_MS() {
-    return parseInt(required('NEXT_PUBLIC_OTP_COOLDOWN_MS'));
-  }, 
+
   get MAIL_FROM() {
     return required('MAIL_FROM');
   },

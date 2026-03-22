@@ -3,7 +3,7 @@ import { google } from '@/lib/oauth/google';
 import { redis } from '@/lib/redis';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

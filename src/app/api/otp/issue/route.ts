@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { randomInt, randomUUID, createHash } from 'crypto';
 import { redis } from '@/lib/redis';
 import { recordLog } from '@/lib/logger';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 import { sendEmail } from '@/lib/mailer';
 import { sendSms } from '@/lib/sms';
 

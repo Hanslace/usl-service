@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import { redis } from '@/lib/redis';
 import { recordLog } from '@/lib/logger';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 
 export async function POST(req: Request) {
   const { otp } = await req.json().catch(() => ({}));

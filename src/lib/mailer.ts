@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 type SendEmailParams = {

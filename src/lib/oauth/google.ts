@@ -1,6 +1,6 @@
 // lib/oauth/google.ts
 import { Google } from 'arctic';
-import { ENV } from '@/config/env';
+import { ENV } from '@/config';
 
 export const google = new Google(
   ENV.GOOGLE_CLIENT_ID,

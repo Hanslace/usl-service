@@ -1,5 +1,5 @@
 export async function register() {
-  const { ENV } = await import('@/config/env');
+  const { ENV } = await import('@/config');
 
   // Access every required field — throws at startup if any env var is missing
   void ENV.NODE_ENV;
